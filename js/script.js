@@ -255,11 +255,13 @@ buttonPlay.addEventListener("click", () => {
     food.x = randomPosition()
     food.y = randomPosition()
     food.color = randomColor()
+    isPaused = false
 })
 
 buttonContinue.addEventListener("click", () => {
     direction = lastDirection
     pause.style.display = "none"
+    isPaused = false
 })
 
 buttonChange.addEventListener("click", () => {
