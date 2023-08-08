@@ -2,11 +2,17 @@ const canvas = document.querySelector("canvas")
 const ctx = canvas.getContext("2d")
 const score = document.querySelector(".score--value")
 const finalScore = document.querySelector(".final-score > span")
+const finalScore2 = document.querySelector(".final-score")
 const menu = document.querySelector(".menu-screen")
+const pause = document.querySelector(".pause-screen")
 const buttonChange = document.querySelector(".dark-mode")
+const buttonPause = document.querySelector(".btn-pause")
+const iconSpan = document.querySelector(".btn-pause > span");
+const buttonContinue = document.querySelector(".btn-continue")
 const buttonPlay = document.querySelector(".btn-play")
 const iconChange = document.querySelector(".material-symbols-outlined")
 const body = document.querySelector("body")
+const title = document.querySelector(".game-over")
 
 const audio = new Audio('../assets/assets_audio.mp3')
 const size = 30
@@ -15,9 +21,10 @@ const color1 = "#c1c1c1"
 const color2 = "#d8b8b8"
 
 let snake = [initialPosition]
-let direction, loopId
+let direction, loopId, lastDirection
 let colorGrid = "#191919"
 let speed = 300
+let isPaused = false; 
 
 const incrementScore = () => {
     score.innerText = +score.innerText + 10
@@ -70,7 +77,7 @@ const drawSnake = () => {
 
 const moveSnake = () => {
 
-    if (!direction) return
+    if (!direction || isPaused) return
 
     const head = snake[snake.length - 1]
 
@@ -118,30 +125,43 @@ const checkCollision = () => {
         return index < neckIndex && position.x == head.x && position.y == head.y
     })
 
-    if(wallCollision || selfCollision){
+    if (wallCollision || selfCollision) {
         gameOver()
     }
 }
 
 const gameOver = () => {
-    direction = undefined 
-
+    direction = undefined
+    lastDirection = undefined
     menu.style.display = "flex"
     finalScore.innerText = score.innerText
     canvas.style.filter = "blur(4px)"
+    isPaused = true
 }
 
 const difficult = () => {
-    if(score.innerText >= 50){
+    if (score.innerText < 50) {
+        speed = 300
+    }
+    if (score.innerText >= 50) {
         speed = 250
     }
-    if(score.innerText >= 100){
+    if (score.innerText >= 100) {
+        speed = 225
+    }
+    if (score.innerText >= 150) {
         speed = 200
     }
-    if(score.innerText >= 150){
+    if (score.innerText >= 250) {
+        speed = 175
+    }
+    if (score.innerText >= 300) {
+        speed = 150
+    }
+    if (score.innerText >= 450) {
         speed = 100
     }
-    if(score.innerText >= 250){
+    if (score.innerText >= 500) {
         speed = 50
     }
 }
@@ -171,11 +191,11 @@ const checkEat = () => {
         incrementScore()
         snake.push(head)
         audio.play()
-        
+
         let x = randomPosition()
         let y = randomPosition()
-        
-        while(snake.find((position) => position.x == x && position.y == y)){
+
+        while (snake.find((position) => position.x == x && position.y == y)) {
             x = randomPosition()
             y = randomPosition()
         }
@@ -186,33 +206,43 @@ const checkEat = () => {
     }
 }
 
-gameLoop()
-
 document.addEventListener("keydown", ({ key }) => {
+    const checkPause = (key) => {
 
-    if (key == 'ArrowRight' && direction != 'left') {
+        if (pause.style.display == "flex" && key == "p") {
+            direction = lastDirection
+            pause.style.display = "none"
+        }
+    }
+})
+
+gameLoop()
+document.addEventListener("keydown", ({ key }) => {
+    if ((key == 'ArrowRight' || (key == "d" || key == 'D')) && direction != 'left') {
         direction = 'right'
     }
-    if (key == 'ArrowLeft' && direction != 'right') {
+    if ((key == 'ArrowLeft' ||( key == 'a' || key == 'A')) && direction != 'right') {
         direction = 'left'
     }
-    if (key == 'ArrowDown' && direction != 'up') {
+    if ((key == 'ArrowDown' || (key == 's' || key == 'S')) && direction != 'up') {
         direction = 'down'
     }
-    if (key == 'ArrowUp' && direction != 'down') {
+    if ((key == 'ArrowUp' || (key == 'w' || key == 'W')) && direction != 'down') {
         direction = 'up'
     }
-    if (key == 'd' && direction != 'left') {
-        direction = 'right'
-    }
-    if (key == 'a' && direction != 'right') {
-        direction = 'left'
-    }
-    if (key == 's' && direction != 'up') {
-        direction = 'down'
-    }
-    if (key == 'w' && direction != 'down') {
-        direction = 'up'
+    
+    
+    if (key == 'p' || key == 'P') { 
+        if (isPaused) { 
+            direction = lastDirection; 
+            isPaused = false; 
+            pause.style.display = "none";
+        } else { 
+            lastDirection = direction;
+            direction = undefined; 
+            isPaused = true; 
+            pause.style.display = "flex";
+        }
     }
 })
 
@@ -227,9 +257,14 @@ buttonPlay.addEventListener("click", () => {
     food.color = randomColor()
 })
 
+buttonContinue.addEventListener("click", () => {
+    direction = lastDirection
+    pause.style.display = "none"
+})
+
 buttonChange.addEventListener("click", () => {
     let status = iconChange.innerText
-    if(status == "nightlight"){
+    if (status == "nightlight") {
         iconChange.innerText = "wb_sunny"
 
         body.style.backgroundColor = "#191919"
@@ -237,15 +272,34 @@ buttonChange.addEventListener("click", () => {
         buttonChange.style.color = "#c1c1c1"
         canvas.style.backgroundColor = "#111"
         colorGrid = "#191919"
-        
-    } else{
+        buttonPause.style.color = "#c1c1c1"
+
+    } else {
         iconChange.innerText = "nightlight"
         status = iconChange.innerText
-        
+
         body.style.backgroundColor = "#c1c1c1"
         body.style.color = "#191919"
         buttonChange.style.color = "#191919"
         canvas.style.backgroundColor = "#8d8b8b"
         colorGrid = "#949494"
+        buttonPause.style.color = "#191919"
     }
 })
+
+buttonPause.addEventListener("click", () => {
+    
+    if (isPaused) { 
+        direction = lastDirection; 
+        isPaused = false; 
+        pause.style.display = "none"; 
+        iconSpan.innerText = "pause_circle"; 
+    } else { 
+        lastDirection = direction;
+        direction = undefined; 
+        isPaused = true; 
+        pause.style.display = "flex";
+        iconSpan.innerText = "play_circle"; 
+    }
+});
+
