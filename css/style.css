@@ -28,7 +28,9 @@ canvas {
     font-size: 1.8rem;
 }
 
-.score--value{
+.score--value,
+.score--value2,
+.score--value3{
     font-weight: 700;
     font-size: 4.5rem;
     display: block;
@@ -42,21 +44,44 @@ canvas {
     flex-direction: column;
     align-items: center;
     z-index: 1;
+    border: #c1c1c1 2px solid;
+    border-radius: 10px;
+    background-color: #111;
+    width: 25rem;
 }
 
-.game-over{
+.start-screen{
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    border: #c1c1c1 2px solid;
+    border-radius: 10px;
+    background-color: #111;
+    width: 25rem;
+}
+
+.title{
     text-transform: uppercase;
     font-weight: 700;
     font-size: 3rem;
+    padding-top: 2rem;
 }
 
-.final-score{
+.final-score,
+.best-score,
+.best-score,
+.score1,
+.last-scorer{
     font-weight: 500;
     font-size: 1.5rem;
 }
 
 .btn-play,
-.btn-continue {
+.btn-continue,
+.btn-start {
+    margin-bottom: 5rem;
     border: none;
     border-radius: 100px;
     padding: 10px 15px 10px 12px;

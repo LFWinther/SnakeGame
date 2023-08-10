@@ -1,30 +1,49 @@
 const canvas = document.querySelector("canvas")
 const ctx = canvas.getContext("2d")
+
 const score = document.querySelector(".score--value")
 const finalScore = document.querySelector(".final-score > span")
-const finalScore2 = document.querySelector(".final-score")
+const bestScore = document.querySelector(".best-score-value")
+const bestScore2 = document.querySelector(".best-score-value2")
+
 const menu = document.querySelector(".menu-screen")
 const pause = document.querySelector(".pause-screen")
+const start = document.querySelector(".start-screen")
+
 const buttonChange = document.querySelector(".dark-mode")
 const buttonPause = document.querySelector(".btn-pause")
-const iconSpan = document.querySelector(".btn-pause > span");
 const buttonContinue = document.querySelector(".btn-continue")
 const buttonPlay = document.querySelector(".btn-play")
-const iconChange = document.querySelector(".material-symbols-outlined")
-const body = document.querySelector("body")
-const title = document.querySelector(".game-over")
+const buttonStart = document.querySelector(".btn-start")
 
+const iconSpan = document.querySelector(".btn-pause > span");
+const iconChange = document.querySelector(".material-symbols-outlined")
+
+const body = document.querySelector("body")
+const title = document.querySelector(".title")
 const audio = new Audio('../assets/assets_audio.mp3')
+
 const size = 30
-const initialPosition = { x: 270, y: 240 }
+const initialPosition = { x: 270, y: 480 }
 const color1 = "#c1c1c1"
 const color2 = "#d8b8b8"
 
 let snake = [initialPosition]
-let direction, loopId, lastDirection
+let direction = "up"
+let loopId, lastDirection
 let colorGrid = "#191919"
 let speed = 300
-let isPaused = false; 
+let isPaused = true;
+
+const updateBestScore = (score) => {
+    const currentBestScore = localStorage.getItem("bestScore")
+
+    if (currentBestScore === null || score > parseInt(currentBestScore)) {
+        localStorage.setItem("bestScore", score)
+        bestScore.innerText = score
+        bestScore2.innerText = score
+    }
+}
 
 const incrementScore = () => {
     score.innerText = +score.innerText + 10
@@ -133,6 +152,7 @@ const checkCollision = () => {
 const gameOver = () => {
     direction = undefined
     lastDirection = undefined
+    updateBestScore(parseInt(score.innerText))
     menu.style.display = "flex"
     finalScore.innerText = score.innerText
     canvas.style.filter = "blur(4px)"
@@ -207,21 +227,10 @@ const checkEat = () => {
 }
 
 document.addEventListener("keydown", ({ key }) => {
-    const checkPause = (key) => {
-
-        if (pause.style.display == "flex" && key == "p") {
-            direction = lastDirection
-            pause.style.display = "none"
-        }
-    }
-})
-
-gameLoop()
-document.addEventListener("keydown", ({ key }) => {
     if ((key == 'ArrowRight' || (key == "d" || key == 'D')) && direction != 'left') {
         direction = 'right'
     }
-    if ((key == 'ArrowLeft' ||( key == 'a' || key == 'A')) && direction != 'right') {
+    if ((key == 'ArrowLeft' || (key == 'a' || key == 'A')) && direction != 'right') {
         direction = 'left'
     }
     if ((key == 'ArrowDown' || (key == 's' || key == 'S')) && direction != 'up') {
@@ -230,18 +239,24 @@ document.addEventListener("keydown", ({ key }) => {
     if ((key == 'ArrowUp' || (key == 'w' || key == 'W')) && direction != 'down') {
         direction = 'up'
     }
-    
-    
-    if (key == 'p' || key == 'P') { 
-        if (isPaused) { 
-            direction = lastDirection; 
-            isPaused = false; 
+
+    if (pause.style.display == "flex" && key == "p") {
+        direction = lastDirection;
+        pause.style.display = "none";
+        iconSpan.innerText = "pause_circle";
+    }
+
+    if (key == 'p' || key == 'P') {
+        if (isPaused) {
+            direction = lastDirection;
+            isPaused = false;
             pause.style.display = "none";
-        } else { 
+        } else {
             lastDirection = direction;
-            direction = undefined; 
-            isPaused = true; 
+            direction = undefined;
+            isPaused = true;
             pause.style.display = "flex";
+            iconSpan.innerText = "play_circle";
         }
     }
 })
@@ -256,6 +271,7 @@ buttonPlay.addEventListener("click", () => {
     food.y = randomPosition()
     food.color = randomColor()
     isPaused = false
+    direction = "up"
 })
 
 buttonContinue.addEventListener("click", () => {
@@ -275,6 +291,18 @@ buttonChange.addEventListener("click", () => {
         canvas.style.backgroundColor = "#111"
         colorGrid = "#191919"
         buttonPause.style.color = "#c1c1c1"
+        pause.style.backgroundColor = "#111"
+        start.style.backgroundColor = "#111"
+        menu.style.backgroundColor = "#111"
+        pause.style.border = "#c1c1c1 2px solid"
+        start.style.border = "#c1c1c1 2px solid"
+        menu.style.border = "#c1c1c1 2px solid"
+        buttonContinue.style.backgroundColor = "#c1c1c1"
+        buttonPlay.style.backgroundColor = "#c1c1c1"
+        buttonStart.style.backgroundColor = "#c1c1c1"
+        buttonContinue.style.color = "#191919"
+        buttonPlay.style.color = "#191919"
+        buttonStart.style.color = "#191919"
 
     } else {
         iconChange.innerText = "nightlight"
@@ -285,23 +313,48 @@ buttonChange.addEventListener("click", () => {
         buttonChange.style.color = "#191919"
         canvas.style.backgroundColor = "#8d8b8b"
         colorGrid = "#949494"
-        buttonPause.style.color = "#191919"
+        buttonPause.style.color = "#111"
+        pause.style.backgroundColor = "#c1c1c1"
+        start.style.backgroundColor = "#c1c1c1"
+        menu.style.backgroundColor = "#c1c1c1"
+        pause.style.border = "#191919 2px solid"
+        start.style.border = "#191919 2px solid"
+        menu.style.border = "#191919 2px solid"
+        buttonContinue.style.backgroundColor = "#191919"
+        buttonPlay.style.backgroundColor = "#191919"
+        buttonStart.style.backgroundColor = "#191919"
+        buttonContinue.style.color = "#c1c1c1"
+        buttonPlay.style.color = "#c1c1c1"
+        buttonStart.style.color = "#c1c1c1"
     }
 })
 
 buttonPause.addEventListener("click", () => {
-    
-    if (isPaused) { 
-        direction = lastDirection; 
-        isPaused = false; 
-        pause.style.display = "none"; 
-        iconSpan.innerText = "pause_circle"; 
-    } else { 
+    if (isPaused) {
+        direction = lastDirection;
+        isPaused = false;
+        pause.style.display = "none";
+        iconSpan.innerText = "pause_circle";
+    } else {
         lastDirection = direction;
-        direction = undefined; 
-        isPaused = true; 
+        direction = undefined;
+        isPaused = true;
         pause.style.display = "flex";
-        iconSpan.innerText = "play_circle"; 
+        iconSpan.innerText = "play_circle";
     }
 });
 
+buttonStart.addEventListener("click", () => {
+    start.style.display = "none"
+    isPaused = false
+})
+
+window.addEventListener("load", () => {
+    const currentBestScore = localStorage.getItem("bestScore");
+
+    if (currentBestScore !== null) {
+        bestScore.innerText = currentBestScore;
+        bestScore2.innerText = currentBestScore;
+    }
+});
+gameLoop()
